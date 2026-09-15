@@ -17,8 +17,15 @@ export default function ScannerStage() {
   const [paused, setPaused] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const {
+    progress,
+    status,
+    result,
+    fps,
+    error: engineError,
+    ready,
+  } = usePipeline({ videoRef, running: state === "live" && !paused, settings });
   const running = state === "live" && !paused;
-  const { progress, status, result, fps } = usePipeline({ videoRef, running, settings });
 
   const detections = result?.detections ?? [];
   const accepted = useMemo(
