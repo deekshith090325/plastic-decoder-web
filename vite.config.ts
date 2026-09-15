@@ -11,17 +11,16 @@ import path from "node:path";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import type { Plugin } from "vite";
 
-const require = createRequire(import.meta.url);
-
 /** The onnxruntime-web wasm binaries we serve from our own origin at /ort/. */
 const ORT_WASM = [
   "ort-wasm-simd-threaded.wasm",
   "ort-wasm-simd-threaded.jsep.wasm",
 ];
 
-function ortDistDir(): string {
-  return path.join(path.dirname(require.resolve("onnxruntime-web/package.json")), "dist");
-}
+const ORT_DIST = path.resolve(
+  process.cwd(),
+  "node_modules/onnxruntime-web/dist",
+);
 
 /**
  * onnxruntime-web defaults to fetching its wasm binary from a public CDN.
