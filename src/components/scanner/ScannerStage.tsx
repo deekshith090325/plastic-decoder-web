@@ -25,7 +25,6 @@ export default function ScannerStage() {
     error: engineError,
     ready,
   } = usePipeline({ videoRef, running: state === "live" && !paused, settings });
-  const running = state === "live" && !paused;
 
   const detections = result?.detections ?? [];
   const accepted = useMemo(
