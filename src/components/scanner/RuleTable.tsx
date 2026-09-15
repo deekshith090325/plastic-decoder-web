@@ -27,7 +27,10 @@ export function RuleTable() {
             >
               <h3 className="text-sm font-semibold">{RESIN_LABELS[resin]}</h3>
               <p className="text-xs text-muted-foreground">{SEVERITY_LABELS[severity]}</p>
-              <p className="mt-3 text-sm">{rec.action}</p>
+              <p className="mt-2 font-mono text-[11px] tracking-wide uppercase">
+                {DECISION_LABELS[rec.decision]}
+              </p>
+              <p className="mt-2 text-sm">{rec.action}</p>
               <p className="mt-2 text-xs text-muted-foreground">{rec.route}</p>
               <p className="mt-1 text-xs text-muted-foreground italic">{rec.reuse}</p>
             </article>
