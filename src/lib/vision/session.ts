@@ -1,9 +1,9 @@
 import type * as Ort from "onnxruntime-web";
 
-// Served from this app's own origin (Vite emits these into the build output),
+// Served from this app's own origin by the ort-wasm-local Vite plugin,
 // never from a public CDN — the demo must make no external connections.
-import jsepWasmUrl from "onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.wasm?url";
-import baseWasmUrl from "onnxruntime-web/dist/ort-wasm-simd-threaded.wasm?url";
+const jsepWasmUrl = "/ort/ort-wasm-simd-threaded.jsep.wasm";
+const baseWasmUrl = "/ort/ort-wasm-simd-threaded.wasm";
 
 export type OrtModule = typeof Ort;
 
