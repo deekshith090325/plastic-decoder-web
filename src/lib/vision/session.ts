@@ -85,5 +85,5 @@ export async function warmup(
   const input = session.inputNames[0];
   if (!input) return;
   const tensor = new ort.Tensor("float32", new Float32Array(size), shape as number[]);
-  await session.run({ [input]: tensor });
+  await runInference(session, { [input]: tensor });
 }

@@ -15,7 +15,7 @@ import {
   toClassifierTensor,
   toDetectorTensor,
 } from "./preprocess";
-import { getOrt, hasWebGPU, loadSession, warmup } from "./session";
+import { getOrt, hasWebGPU, loadSession, runInference, warmup } from "./session";
 import { decodeYolo, type RawDetection } from "./yolo";
 import type {
   Box,
@@ -82,7 +82,7 @@ class OnnxEngine implements Engine {
     const inputName = session.inputNames[0]!;
     const outputName = session.outputNames[0]!;
     const feeds = { [inputName]: new ort.Tensor("float32", input, shape) };
-    const result = await session.run(feeds);
+    const result = await runInference(session, feeds);
     return result[outputName]!;
   }
 
