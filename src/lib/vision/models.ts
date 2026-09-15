@@ -7,21 +7,18 @@ export interface ModelSpec {
   inputSize: number;
 }
 
-/**
- * Drop the exported .onnx files at these paths to switch the app from
- * simulated inference to real inference. Nothing else needs to change.
- */
+/** The four exported models, served as static files from public/models. */
 export const MODEL_SPECS: ModelSpec[] = [
   {
     key: "plastic",
-    label: "Plastic detector (YOLOv8s)",
-    url: "/models/plastic-yolov8s.onnx",
+    label: "Plastic detector (YOLOv8s INT8)",
+    url: "/models/plastic-yolov8s-int8.onnx",
     inputSize: 640,
   },
   {
     key: "person",
-    label: "Person detector (COCO)",
-    url: "/models/person-yolov8n.onnx",
+    label: "Person detector (YOLOv8n COCO INT8)",
+    url: "/models/person-yolov8n-int8.onnx",
     inputSize: 640,
   },
   {
@@ -38,9 +35,12 @@ export const MODEL_SPECS: ModelSpec[] = [
   },
 ];
 
-/** Output index -> label. Single source of truth for both engines. */
-export const RESIN_CLASSES: readonly Resin[] = RESINS;
-export const SEVERITY_CLASSES: readonly Severity[] = SEVERITIES;
+/**
+ * Output index -> label. Single source of truth for the classifier heads;
+ * the order must match the training-time class order exactly.
+ */
+export const RESIN_CLASSES: readonly Resin[] = RESINS; // ['PET','PE-HD','PP','PS']
+export const SEVERITY_CLASSES: readonly Severity[] = SEVERITIES; // ['clean_or_light','moderate_dirt_synth','high_dirt_synth']
 
 /** COCO class index for "person" in an off-the-shelf YOLOv8 export. */
 export const COCO_PERSON_CLASS = 0;

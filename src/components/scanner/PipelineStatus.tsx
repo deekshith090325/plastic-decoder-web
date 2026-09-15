@@ -43,7 +43,14 @@ export function PipelineStatus({ progress, status, result, fps }: Props) {
                   model.state === "pending" && "text-muted-foreground",
                 )}
               />
-              <span className="flex-1 truncate">{model.label}</span>
+              <span className="flex-1 truncate">
+                {model.label}
+                {model.message ? (
+                  <span className="block text-xs break-words text-reject">
+                    {model.message}
+                  </span>
+                ) : null}
+              </span>
               <span className="font-mono text-xs text-muted-foreground">
                 {model.state}
               </span>

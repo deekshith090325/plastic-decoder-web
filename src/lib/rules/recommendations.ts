@@ -1,11 +1,15 @@
 import type { Resin, Severity } from "@/lib/vision/types";
 
+export type DecisionClass = "Recycle_after_clean" | "Prefer_reuse" | "Dispose";
+
 export interface Recommendation {
-  /** Stage 3 column 1: what to do with the item right now. */
+  /** Stage 3 column 1: the decision class for this (resin, severity) pair. */
+  decision: DecisionClass;
+  /** Stage 3 column 2: what to do with the item right now. */
   action: string;
-  /** Stage 3 column 2: where the material should go. */
+  /** Stage 3 column 3: where the material should go. */
   route: string;
-  /** Stage 3 column 3: a reuse idea before recycling. */
+  /** Practical reuse idea shown alongside the decision. */
   reuse: string;
   /** Drives card styling via design tokens. */
   tone: "recycle" | "prep" | "reject";
@@ -24,90 +28,111 @@ export const RESIN_LABELS: Record<Resin, string> = {
   PS: "PS (6)",
 };
 
+export const DECISION_LABELS: Record<DecisionClass, string> = {
+  Recycle_after_clean: "Recycle after clean",
+  Prefer_reuse: "Prefer reuse",
+  Dispose: "Dispose",
+};
+
+const TONE_BY_DECISION: Record<DecisionClass, Recommendation["tone"]> = {
+  Recycle_after_clean: "recycle",
+  Prefer_reuse: "prep",
+  Dispose: "reject",
+};
+
+function row(
+  decision: DecisionClass,
+  action: string,
+  route: string,
+  reuse: string,
+): Recommendation {
+  return { decision, action, route, reuse, tone: TONE_BY_DECISION[decision] };
+}
+
 /**
  * Stage 3 lookup: 4 resins x 3 severities = 12 rows.
  * Nested Record (rather than an array) so TypeScript enforces every cell.
  */
 export const RECOMMENDATIONS: Record<Resin, Record<Severity, Recommendation>> = {
   PET: {
-    clean_or_light: {
-      action: "Empty, cap off, place directly in the recycling stream.",
-      route: "Bottle-to-bottle rPET — highest value food-grade loop.",
-      reuse: "Refill for non-potable water, or use as a seedling cloche.",
-      tone: "recycle",
-    },
-    moderate_dirt_synth: {
-      action: "Rinse with cold water and drain before binning.",
-      route: "rPET flake for fibre and strapping after wash-line cleaning.",
-      reuse: "Cut down into a desk organiser or storage scoop.",
-      tone: "prep",
-    },
-    high_dirt_synth: {
-      action: "Do not place in the recycling stream — residue will taint the bale.",
-      route: "General waste, or energy recovery where available.",
-      reuse: "Not recommended for reuse in this condition.",
-      tone: "reject",
-    },
+    clean_or_light: row(
+      "Recycle_after_clean",
+      "Recycle (rinse first if residue visible)",
+      "Mechanical (bottle-to-bottle/fiber)",
+      "Refill for non-potable use, or use as a seedling cloche.",
+    ),
+    moderate_dirt_synth: row(
+      "Recycle_after_clean",
+      "Recycle if cleaned; otherwise divert",
+      "Wash-then-mechanical / glycolysis",
+      "Cut down into a desk organiser or storage scoop.",
+    ),
+    high_dirt_synth: row(
+      "Dispose",
+      "Dispose",
+      "Cement-kiln co-processing / road-bitumen mix",
+      "Not recommended for reuse in this condition.",
+    ),
   },
   "PE-HD": {
-    clean_or_light: {
-      action: "Empty and recycle as-is; the label can stay on.",
-      route: "Rigid HDPE regrind for pipe, crates and new bottles.",
-      reuse: "Sturdy enough as a workshop container or plant pot.",
-      tone: "recycle",
-    },
-    moderate_dirt_synth: {
-      action: "Rinse out detergent or food residue, then recycle.",
-      route: "Non-food-grade HDPE regrind — outdoor furniture, drainage.",
-      reuse: "Cut into a scoop, funnel or tool caddy.",
-      tone: "prep",
-    },
-    high_dirt_synth: {
-      action: "Divert from recycling; chemical or oily residue contaminates the batch.",
-      route: "General waste; hazardous stream if it held solvents or oil.",
-      reuse: "Not recommended for reuse in this condition.",
-      tone: "reject",
-    },
+    clean_or_light: row(
+      "Recycle_after_clean",
+      "Recycle (rinse first if residue visible)",
+      "Mechanical (bottle-to-bottle/downcycled)",
+      "Sturdy enough as a workshop container or plant pot.",
+    ),
+    moderate_dirt_synth: row(
+      "Recycle_after_clean",
+      "Recycle if cleaned; otherwise divert",
+      "Wash-then-mechanical / pyrolysis",
+      "Cut into a scoop, funnel or tool caddy.",
+    ),
+    high_dirt_synth: row(
+      "Dispose",
+      "Dispose",
+      "Cement-kiln / road-construction mix",
+      "Not recommended for reuse in this condition.",
+    ),
   },
   PP: {
-    clean_or_light: {
-      action: "Empty, keep the lid attached, recycle.",
-      route: "PP regrind for automotive parts, crates and caps.",
-      reuse: "Excellent lunch or pantry container — PP is heat tolerant.",
-      tone: "recycle",
-    },
-    moderate_dirt_synth: {
-      action: "Scrape and rinse off grease before binning; dry if possible.",
-      route: "Mixed PP regrind for non-food injection moulding.",
-      reuse: "Use for paint, screws or garage storage rather than food.",
-      tone: "prep",
-    },
-    high_dirt_synth: {
-      action: "Keep out of the recycling stream — baked-on grease cannot be washed out.",
-      route: "General waste or energy recovery.",
-      reuse: "Not recommended for reuse in this condition.",
-      tone: "reject",
-    },
+    clean_or_light: row(
+      "Recycle_after_clean",
+      "Recycle where collection exists, else reuse",
+      "Mechanical",
+      "Excellent lunch or pantry container — PP is heat tolerant.",
+    ),
+    moderate_dirt_synth: row(
+      "Prefer_reuse",
+      "Prefer reuse over recycling",
+      "Wash-then-mechanical (marginal) / pyrolysis",
+      "Use for paint, screws or garage storage rather than food.",
+    ),
+    high_dirt_synth: row(
+      "Dispose",
+      "Dispose",
+      "Cement-kiln / road-construction mix",
+      "Not recommended for reuse in this condition.",
+    ),
   },
   PS: {
-    clean_or_light: {
-      action: "Check local acceptance — many kerbside programmes reject PS.",
-      route: "Specialist PS drop-off point where one exists.",
-      reuse: "Reuse as a drawer divider or protective packing insert.",
-      tone: "prep",
-    },
-    moderate_dirt_synth: {
-      action: "Rinse, but expect most facilities to refuse it.",
-      route: "Rarely recycled — general waste in most regions.",
-      reuse: "Short-term storage tray only; PS embrittles with age.",
-      tone: "prep",
-    },
-    high_dirt_synth: {
-      action: "Dispose of in general waste — no viable recycling route.",
-      route: "Landfill or energy recovery.",
-      reuse: "Not recommended for reuse in this condition.",
-      tone: "reject",
-    },
+    clean_or_light: row(
+      "Prefer_reuse",
+      "Recycle only if buyer + non-SUP confirmed, else reuse/dispose",
+      "Mechanical (rarely available)",
+      "Reuse as a drawer divider or protective packing insert.",
+    ),
+    moderate_dirt_synth: row(
+      "Dispose",
+      "Dispose",
+      "Cement-kiln co-processing",
+      "Not recommended for reuse in this condition.",
+    ),
+    high_dirt_synth: row(
+      "Dispose",
+      "Dispose",
+      "Cement-kiln / waste-to-energy",
+      "Not recommended for reuse in this condition.",
+    ),
   },
 };
 

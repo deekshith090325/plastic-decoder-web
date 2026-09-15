@@ -69,12 +69,11 @@ function About() {
       </ol>
 
       <section className="mt-12">
-        <h2 className="text-2xl font-semibold">Adding the trained models</h2>
+        <h2 className="text-2xl font-semibold">The models</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Until the exported ONNX files are present the app runs the full pipeline with
-          simulated inference, so the geometry, filtering and rule lookup are all
-          demonstrable. Place the exports at these paths and the app switches to real
-          inference automatically on the next reload:
+          All four exported ONNX files are served as static assets from this app. They are
+          fetched once per tab, cached, and warmed up with a dummy inference before the
+          camera can start:
         </p>
         <ul className="mt-4 space-y-2 font-mono text-xs">
           {MODEL_SPECS.map((spec) => (
@@ -87,10 +86,10 @@ function About() {
           ))}
         </ul>
         <p className="mt-4 text-sm text-muted-foreground">
-          Export the YOLO models without baked-in NMS (the decoder here handles both the
-          [1, 4+nc, N] and [1, N, 4+nc] output layouts), and prefer INT8 or FP16 exports —
-          an FP32 YOLOv8s is around 45 MB to download before the first frame can be
-          processed.
+          The detectors are exported without baked-in NMS — the decoder here handles both
+          the [1, 4+nc, N] and [1, N, 4+nc] output layouts, and suppression happens in
+          TypeScript. The runtime itself (WebAssembly and, where available, WebGPU) is
+          served from this app too, so nothing is fetched from a third-party CDN.
         </p>
       </section>
     </main>
