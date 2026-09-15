@@ -200,7 +200,20 @@ function emptyResult(width: number, height: number): FrameResult {
  * Loads every model once, warms each one up with a dummy inference, and only
  * then hands back a usable engine. Rejects if any model fails to load.
  */
-export async function loadEngine(
+let enginePromise: Promise<Engine> | null = null;
+
+export function loadEngine(
+  onProgress: (progress: ModelProgress[]) => void,
+): Promise<Engine> {
+  // Deduped so a remount (or React StrictMode) never loads the models twice.
+  enginePromise ??= createEngine(onProgress);
+  enginePromise.catch(() => {
+    enginePromise = null;
+  });
+  return enginePromise;
+}
+
+async function createEngine(
   onProgress: (progress: ModelProgress[]) => void,
 ): Promise<Engine> {
   const progress: ModelProgress[] = MODEL_SPECS.map((spec) => ({
