@@ -9,7 +9,7 @@ export interface RawDetection {
 }
 
 interface TensorLike {
-  data: Float32Array | Uint8Array | Int32Array | Uint16Array | Float64Array;
+  data: unknown;
   dims: readonly number[];
 }
 
