@@ -2,6 +2,7 @@ import { ArrowRight, Recycle, Repeat2, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
+  DECISION_LABELS,
   RESIN_LABELS,
   SEVERITY_LABELS,
   getRecommendation,
@@ -21,11 +22,6 @@ const TONE_BADGE = {
   reject: "bg-reject text-reject-foreground",
 } as const;
 
-const TONE_LABEL = {
-  recycle: "Recycle now",
-  prep: "Prepare first",
-  reject: "Do not recycle",
-} as const;
 
 export function RecommendationCard({ detection }: { detection: Detection | null }) {
   if (!detection || !detection.classification) {
