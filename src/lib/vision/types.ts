@@ -68,7 +68,7 @@ export const DEFAULT_SETTINGS: PipelineSettings = {
   personFilterEnabled: true,
 };
 
-export type EngineMode = "onnx" | "simulated";
+export type EngineMode = "onnx";
 
 export interface EngineStatus {
   mode: EngineMode;
