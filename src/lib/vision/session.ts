@@ -1,8 +1,6 @@
 import type * as Ort from "onnxruntime-web";
 
-import asyncifyWasm from "@/assets/ort/ort-wasm-simd-threaded.asyncify.wasm.asset.json";
 import jsepWasm from "@/assets/ort/ort-wasm-simd-threaded.jsep.wasm.asset.json";
-import jspiWasm from "@/assets/ort/ort-wasm-simd-threaded.jspi.wasm.asset.json";
 import baseWasm from "@/assets/ort/ort-wasm-simd-threaded.wasm.asset.json";
 
 export type OrtModule = typeof Ort;
@@ -10,18 +8,13 @@ export type OrtModule = typeof Ort;
 let ortPromise: Promise<OrtModule> | null = null;
 
 /**
- * Loads onnxruntime-web lazily (browser only) and pins its wasm binaries to
- * our own CDN copies — the library default fetches them from a public CDN,
+ * Loads onnxruntime-web lazily (browser only) and pins its wasm binary to
+ * our own CDN copy — the library default fetches it from a public CDN,
  * which this app must not do.
  */
 export function getOrt(): Promise<OrtModule> {
   ortPromise ??= import("onnxruntime-web").then((ort) => {
-    ort.env.wasm.wasmPaths = {
-      "ort-wasm-simd-threaded.wasm": baseWasm.url,
-      "ort-wasm-simd-threaded.jsep.wasm": jsepWasm.url,
-      "ort-wasm-simd-threaded.jspi.wasm": jspiWasm.url,
-      "ort-wasm-simd-threaded.asyncify.wasm": asyncifyWasm.url,
-    };
+    ort.env.wasm.wasmPaths = { wasm: hasWebGPU() ? jsepWasm.url : baseWasm.url };
     ort.env.wasm.numThreads = Math.min(4, navigator.hardwareConcurrency || 1);
     ort.env.logLevel = "error";
     return ort;
