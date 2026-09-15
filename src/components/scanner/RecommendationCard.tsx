@@ -46,7 +46,7 @@ export function RecommendationCard({ detection }: { detection: Detection | null 
           <p className="text-sm text-muted-foreground">{SEVERITY_LABELS[severity]}</p>
         </div>
         <Badge className={cn("rounded-full px-3 py-1", TONE_BADGE[rec.tone])}>
-          {TONE_LABEL[rec.tone]}
+          {DECISION_LABELS[rec.decision]}
         </Badge>
       </header>
 
