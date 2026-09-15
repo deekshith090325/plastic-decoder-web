@@ -25,6 +25,8 @@ export function usePipeline({ videoRef, running, settings, minInterval = 80 }: O
   const [status, setStatus] = useState<EngineStatus | null>(null);
   const [result, setResult] = useState<FrameResult | null>(null);
   const [fps, setFps] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
 
   settingsRef.current = settings;
 
@@ -32,14 +34,20 @@ export function usePipeline({ videoRef, running, settings, minInterval = 80 }: O
     let cancelled = false;
     loadEngine((p) => {
       if (!cancelled) setProgress(p);
-    }).then((engine) => {
-      if (cancelled) {
-        engine.dispose();
-        return;
-      }
-      engineRef.current = engine;
-      setStatus(engine.status);
-    });
+    })
+      .then((engine) => {
+        if (cancelled) {
+          engine.dispose();
+          return;
+        }
+        engineRef.current = engine;
+        setStatus(engine.status);
+        setReady(true);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : "Failed to load the models");
+      });
     return () => {
       cancelled = true;
       engineRef.current?.dispose();
@@ -84,5 +92,5 @@ export function usePipeline({ videoRef, running, settings, minInterval = 80 }: O
 
   const reset = useCallback(() => setResult(null), []);
 
-  return { progress, status, result, fps, reset };
+  return { progress, status, result, fps, reset, error, ready };
 }
