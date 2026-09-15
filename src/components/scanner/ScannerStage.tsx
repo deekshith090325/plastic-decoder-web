@@ -60,10 +60,20 @@ export default function ScannerStage() {
                 <Camera className="size-10 text-accept" />
                 <p className="max-w-sm text-sm text-muted-foreground">
                   {error ??
-                    "Everything runs in this browser tab. Nothing from your camera is uploaded."}
+                    engineError ??
+                    (ready
+                      ? "Everything runs in this browser tab. Nothing from your camera is uploaded."
+                      : "Loading and warming up the four models…")}
                 </p>
-                <Button onClick={() => void start()} disabled={state === "starting"}>
-                  {state === "starting" ? "Starting camera…" : "Start camera"}
+                <Button
+                  onClick={() => void start()}
+                  disabled={state === "starting" || !ready}
+                >
+                  {state === "starting"
+                    ? "Starting camera…"
+                    : ready
+                      ? "Start camera"
+                      : "Preparing models…"}
                 </Button>
               </div>
             )}
