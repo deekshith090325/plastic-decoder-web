@@ -5,7 +5,6 @@
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { createReadStream, existsSync, mkdirSync, copyFileSync } from "node:fs";
-import { createRequire } from "node:module";
 import path from "node:path";
 
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
@@ -36,7 +35,7 @@ function ortWasmPlugin(): Plugin {
         if (!req.url?.startsWith("/ort/") || !name || !ORT_WASM.includes(name)) {
           return next();
         }
-        const file = path.join(ortDistDir(), name);
+        const file = path.join(ORT_DIST, name);
         if (!existsSync(file)) return next();
         res.setHeader("Content-Type", "application/wasm");
         res.setHeader("Cache-Control", "max-age=31536000, immutable");
@@ -49,7 +48,7 @@ function ortWasmPlugin(): Plugin {
       const target = path.join(options.dir, "ort");
       mkdirSync(target, { recursive: true });
       for (const name of ORT_WASM) {
-        const file = path.join(ortDistDir(), name);
+        const file = path.join(ORT_DIST, name);
         if (existsSync(file)) copyFileSync(file, path.join(target, name));
       }
     },
