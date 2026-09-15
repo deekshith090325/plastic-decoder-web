@@ -59,6 +59,22 @@ export function loadSession(url: string): Promise<Ort.InferenceSession> {
   return created;
 }
 
+/**
+ * An InferenceSession cannot run two inferences at once ("Session already
+ * started"), so every call is queued behind the previous one.
+ */
+const queues = new WeakMap<Ort.InferenceSession, Promise<unknown>>();
+
+export function runInference(
+  session: Ort.InferenceSession,
+  feeds: Ort.InferenceSession.OnnxValueMapType,
+): Promise<Ort.InferenceSession.OnnxValueMapType> {
+  const previous = queues.get(session) ?? Promise.resolve();
+  const next = previous.catch(() => undefined).then(() => session.run(feeds));
+  queues.set(session, next);
+  return next;
+}
+
 /** One dummy inference so the first real frame is not paying warmup cost. */
 export async function warmup(
   session: Ort.InferenceSession,
